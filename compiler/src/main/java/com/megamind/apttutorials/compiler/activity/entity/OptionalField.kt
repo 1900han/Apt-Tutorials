@@ -38,10 +38,12 @@ open class OptionalField(symbol: Symbol.VarSymbol) : Field(symbol) {
     }
 
     override fun compareTo(other: Field): Int {
-        return if(other is OptionalField){
+        return if (other is OptionalField) {
             super.compareTo(other)
-        }else {
+        } else {
             1
         }
     }
+
+    override fun asKotlinTypeName() = super.asKotlinTypeName().copy(nullable = true)
 }

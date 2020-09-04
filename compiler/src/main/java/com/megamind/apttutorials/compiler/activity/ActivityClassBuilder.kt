@@ -1,13 +1,12 @@
 package com.megamind.apttutorials.compiler.activity
 
-import com.megamind.apttutorials.compiler.activity.method.ConstantBuilder
-import com.megamind.apttutorials.compiler.activity.method.InjectMethodBuilder
-import com.megamind.apttutorials.compiler.activity.method.SaveStateMethodBuilder
-import com.megamind.apttutorials.compiler.activity.method.StartMethodBuilder
+import com.megamind.apttutorials.compiler.activity.method.*
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeSpec
+import com.squareup.kotlinpoet.FileSpec
 import javax.annotation.processing.Filer
 import javax.lang.model.element.Modifier
+import javax.tools.StandardLocation
 
 /**
  * @description
@@ -33,7 +32,23 @@ class ActivityClassBuilder(private val activityClass: ActivityClass) {
         StartMethodBuilder(activityClass).build(typeBuilder)
         SaveStateMethodBuilder(activityClass).build(typeBuilder)
         InjectMethodBuilder(activityClass).build(typeBuilder)
+
+        if (activityClass.isKotlin) {
+            val fileBuilder =
+                FileSpec.builder(activityClass.packageName, activityClass.simpleName + POSIX)
+            StartKotlinFunctionBuilder(activityClass).build(fileBuilder)
+            writeKotlinToFile(filer, fileBuilder.build())
+        }
         writeJavaToFile(filer, typeBuilder.build())
+    }
+
+    private fun writeKotlinToFile(filer: Filer, fileSpec: FileSpec) {
+        val fileObject = filer.createResource(
+            StandardLocation.SOURCE_OUTPUT,
+            activityClass.packageName,
+            fileSpec.name + ".kt"
+        )
+        fileObject.openWriter().also(fileSpec::writeTo).close()
     }
 
     private fun writeJavaToFile(filer: Filer, typeSpec: TypeSpec) {
