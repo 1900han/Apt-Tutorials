@@ -1,0 +1,18 @@
+import org.gradle.internal.jvm.Jvm
+apply plugin: 'java-library'
+apply plugin: 'kotlin'
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(":annotations")
+    implementation 'com.bennyhuo.aptutils:aptutils:1.7.1'
+    // https://mvnrepository.com/artifact/com.squareup/javapoet
+    implementation group: 'com.squareup', name: 'javapoet', version: '1.13.0'
+    implementation group: 'com.squareup', name: 'kotlinpoet', version: '1.6.0'
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compileOnly files(Jvm.current().getToolsJar())
+}
+
+sourceCompatibility = "1.8"
+targetCompatibility = "1.8"
